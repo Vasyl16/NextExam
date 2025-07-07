@@ -1,0 +1,63 @@
+@theme {
+  --color-main-bg: var(--main-bg);
+
+  --color-main-text: var(--main-text-color);
+
+  --color-main-icon-color: var(--main-text-color);
+
+  --font-logo: var(--logo-font-family);
+
+  --color-main-button-bg: var(--button-bg);
+
+  --color-input-outline: black;
+  --color-input-text: black;
+
+  --color-input-bg: var(--input-bg);
+
+  --shadow-main: var(--box-shadow-main);
+
+  --color-dropdown-bg: var(--dropdown-bg);
+  --color-dropdown-border: var(--dropdown-border);
+  --color-dropdown-list-bg: var(--dropdown-list-bg);
+}
+
+:root {
+  --main-bg: rgba(239, 240, 243, 1);
+  --second-bg: rgb(197, 194, 194);
+
+  --box-shadow-main: -30px -10px 70px rgba(0, 0, 0, 0.1);
+
+  --main-text-color: black;
+
+  --main-border-color: rgb(197, 194, 194);
+
+  --button-text-color: black;
+
+  --button-bg: rgba(98, 70, 234, 1);
+
+  --input-bg: white;
+  --input-border: transparent;
+
+  --dropdown-bg: white;
+  --dropdown-border: #d1d5dc;
+  --dropdown-list-bg: #e9e9e9;
+}
+
+.dark {
+  --main-bg: rgb(31, 31, 31);
+  --second-bg: rgb(66, 66, 66);
+
+  --box-shadow-main: -30px -10px 70px rgba(235, 235, 235, 0.1);
+
+  --main-border-color: rgb(93, 93, 93);
+
+  --main-text-color: white;
+
+  --button-bg: rgb(243, 50, 140);
+
+  --input-bg: #dedede;
+
+  --dropdown-bg: #1f1f1f;
+  --dropdown-border: #444;
+  --dropdown-list-bg: #3a3a3a;
+}

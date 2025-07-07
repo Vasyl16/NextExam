@@ -7,10 +7,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { StarRating } from '@/components/StarRating';
 
-export const MovieFull: React.FC<{ params: Promise<{ id: string }> }> = async ({
+export default async function Page({
   params,
-}) => {
-  const { id } = await params;
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const id = (await params).id;
 
   const movieData = await getMovieFull(id);
 
@@ -113,6 +115,4 @@ export const MovieFull: React.FC<{ params: Promise<{ id: string }> }> = async ({
       </div>
     </main>
   );
-};
-
-export default MovieFull;
+}

@@ -78,12 +78,25 @@ export const Header: React.FC = () => {
           ref={searchInputAndItems}
           className="relative flex-1 max-w-[500px]"
         >
-          <input
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            className="text-[18px] bg-input-bg text-input-text w-full rounded-[10px] p-[10px]  shadow-[-30px_-10px_70px_rgba(0,0,0,0.1)] focus:outline-input-outline"
-            placeholder="Type to search movie"
-          />
+          <div className="relative">
+            <input
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              className="text-[18px] bg-input-bg text-input-text w-full rounded-[10px] p-[10px_40px_10px_10px]  shadow-[-30px_-10px_70px_rgba(0,0,0,0.1)] focus:outline-input-outline"
+              placeholder="Type to search movie"
+            />
+
+            {searchText && (
+              <button
+                onClick={handleClearState}
+                className="h-[30px] w-[30px] cursor-pointer absolute top-[50%] right-[10px] -translate-y-[50%]"
+              >
+                <svg className=" hover:opacity-70  h-full w-full">
+                  <use href={`${BASE_URL}/icons/sprite.svg#cross-icon`}></use>
+                </svg>
+              </button>
+            )}
+          </div>
 
           {searchText && (
             <SearchItemsList

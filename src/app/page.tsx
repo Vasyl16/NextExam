@@ -15,6 +15,7 @@ export default async function Home() {
       >
         <Hero />
       </Suspense>
+
       <Movie />
     </main>
   );

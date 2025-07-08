@@ -1,7 +1,7 @@
 'use client';
 
 import { useSelector } from 'react-redux';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
 import 'swiper/swiper-bundle.css';
 
@@ -15,22 +15,19 @@ import { useAppDispatch } from '@/store/store';
 import { fetchMovies } from '@/store/slices/movieSlice';
 import { selectMovieState } from '@/store/slices/select';
 
-import type { Categorytype, SortOptionType } from '@/types/movieTypes';
-
-import { INITIAL_CATEGORY } from '@/constants/movieConstants';
+import { useSearchParamsMovies } from '@/hooks/useSearchParamsMovies';
 
 export const Movie: React.FC = () => {
   const dispatch = useAppDispatch();
 
-  const [selectedSort, setSelectedSort] = useState<SortOptionType>({
-    name: 'Popularity(desc)',
-    sortBy: 'popularity.desc',
-  });
-
-  const [selectedCategory, setSelectedCategory] =
-    useState<Categorytype>(INITIAL_CATEGORY);
-
-  const [currentPage, setCurrentPage] = useState(1);
+  const {
+    currentPage,
+    handleSetCurrentPage,
+    handleSetGategory,
+    handleSetSelectedSort,
+    selectedCategory,
+    selectedSort,
+  } = useSearchParamsMovies();
 
   const movieOptions = useMemo(() => {
     return {
@@ -52,12 +49,15 @@ export const Movie: React.FC = () => {
         <h1 className="text-center text-[36px]">Movie List</h1>
 
         <div className="relative flex my-[30px] items-center gap-[30px]">
-          <SortDropdown selected={selectedSort} setSelected={setSelectedSort} />
+          <SortDropdown
+            selected={selectedSort}
+            setSelected={handleSetSelectedSort}
+          />
 
           <div className="flex-1 overflow-x-auto border-l-main-text border-l-2 pl-[20px]">
             <Categories
               selectedCategory={selectedCategory}
-              setSelectedCategory={setSelectedCategory}
+              setSelectedCategory={handleSetGategory}
             />
           </div>
         </div>
@@ -89,7 +89,7 @@ export const Movie: React.FC = () => {
         ) : movieItems.status === 'error' || movieItems.results.length == 0 ? (
           <>
             <p className="text-center text-[20px]">
-              There&aposs no movie can be found
+              There is no movie can be found
             </p>
           </>
         ) : (
@@ -100,7 +100,7 @@ export const Movie: React.FC = () => {
               <div className="mt-[40px]">
                 <PaginationComp
                   currentPage={currentPage}
-                  setCurrentPage={setCurrentPage}
+                  setCurrentPage={handleSetCurrentPage}
                   totalPages={movieItems.total_pages}
                 />
               </div>

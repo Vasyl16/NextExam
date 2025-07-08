@@ -2,37 +2,14 @@
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 
-import { useGetGenres } from '@/api/query/useGetGenres';
-
 import type { Categorytype } from '@/types/movieTypes';
-import { SkeletonComp } from './SkeletonComp';
-import { INITIAL_CATEGORY } from '@/constants/movieConstants';
+import { CATEGORY_OPTIONS, INITIAL_CATEGORY } from '@/constants/movieConstants';
 import { memo } from 'react';
 
 const Categories: React.FC<{
   selectedCategory: Categorytype;
   setSelectedCategory: (newSelectedCategory: Categorytype) => void;
 }> = ({ selectedCategory, setSelectedCategory }) => {
-  const {
-    data: categoryData,
-    isLoading: isLoadingGenres,
-    error,
-  } = useGetGenres();
-
-  if (isLoadingGenres) {
-    return (
-      <div className="flex gap-[10px]">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <SkeletonComp key={i} width="100px" height="42px" rounded="10px" />
-        ))}
-      </div>
-    );
-  }
-
-  if (error || !categoryData) {
-    return <div>Can&apost Load Categories</div>;
-  }
-
   return (
     <Swiper
       tag="ul"
@@ -46,7 +23,7 @@ const Categories: React.FC<{
         );
       }}
     >
-      {[INITIAL_CATEGORY, ...categoryData].map((category) => (
+      {[INITIAL_CATEGORY, ...CATEGORY_OPTIONS].map((category) => (
         <SwiperSlide
           key={category.id || category.name}
           tag="li"

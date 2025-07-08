@@ -15,6 +15,11 @@ import Image from 'next/image';
 export const HeroItems: React.FC<{ data: NewestMovieData[] }> = ({ data }) => {
   return (
     <Swiper
+      onClick={() => {
+        document.body.dispatchEvent(
+          new MouseEvent('mousedown', { bubbles: true })
+        );
+      }}
       modules={[Autoplay]}
       className="w-full h-full"
       spaceBetween={0}

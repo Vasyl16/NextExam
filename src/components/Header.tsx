@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useClickAway } from 'react-use';
 
 import { StarRating } from './StarRating';
 
@@ -15,12 +16,25 @@ import { useDebounce } from '@/hooks/useDebounce';
 
 import { BASE_URL, getMovieDetailRoute, ROUTES } from '@/constants/routes';
 
+import { SearchMovieType } from '@/types/movieTypes';
+
+type SearchItemsListProps = {
+  isLoadingSearchMovies: boolean;
+  searchMovies: SearchMovieType[];
+  seartchTextDebounce: string;
+  handleNavigateMovie: (id: number) => void;
+  parentRef: React.RefObject<HTMLDivElement | null>;
+  handleClearState: () => void;
+};
+
 export const Header: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
 
   const [searchText, setSearchText] = useState('');
 
   const router = useRouter();
+
+  const searchInputAndItems = useRef<HTMLDivElement>(null);
 
   const { debounceValue: seartchTextDebounce } =
     useDebounce<string>(searchText);
@@ -30,6 +44,10 @@ export const Header: React.FC = () => {
       seartchTextDebounce,
       seartchTextDebounce.trim().length > 0
     );
+
+  const handleClearState = () => {
+    setSearchText('');
+  };
 
   const handleNavigateMovie = (id: number) => {
     setSearchText('');
@@ -56,64 +74,27 @@ export const Header: React.FC = () => {
           </Link>
         </div>
 
-        <div className="relative flex-1 max-w-[500px]">
+        <div
+          ref={searchInputAndItems}
+          className="relative flex-1 max-w-[500px]"
+        >
           <input
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             className="text-[18px] bg-input-bg text-input-text w-full rounded-[10px] p-[10px]  shadow-[-30px_-10px_70px_rgba(0,0,0,0.1)] focus:outline-input-outline"
             placeholder="Type to search movie"
           />
-          <div
-            className={`
-          absolute duration-300 ease-in-out  custom-scrollbar overflow-y-scroll w-full top-[calc(100%+10px)] left-0 rounded-[10px] shadow bg-dropdown-bg border border-dropdown-border
-         ${
-           searchText
-             ? 'opacity-100 h-[50vh]'
-             : 'translate-y-[20px] opacity-0 h-[0px] pointer-events-nonee'
-         }
-         
-          `}
-          >
-            {isLoadingSearchMovies ? (
-              <svg className="h-[30px] w-[30px] object-cover m-[20px_auto_0] spin-endless stroke-main-text duration-500 ">
-                <use href={`${BASE_URL}/icons/sprite.svg#loader-icon`}></use>
-              </svg>
-            ) : searchMovies.length === 0 ? (
-              <p className="text-center text-[20px] mt-[20px]">
-                {seartchTextDebounce && 'Noting is found'}
-              </p>
-            ) : (
-              searchMovies.map((searchMovie, i) => (
-                <button
-                  onClick={() => handleNavigateMovie(searchMovie.id)}
-                  key={i}
-                  className="block w-full px-4 py-2 duration-300 hover:bg-dropdown-list-bg cursor-pointer"
-                >
-                  <article className="flex gap-[20px]">
-                    <Image
-                      width={70}
-                      height={90}
-                      alt={searchMovie.title}
-                      src={getImagePath(searchMovie.poster_path)}
-                      className="h-[90px] w-[70px] object-cover rounded-[8px]"
-                    />
 
-                    <div className="flex items-start flex-col gap-[3px] ">
-                      <h3 className="text-left text-[18px] text-main-text ">
-                        {searchMovie.title}
-                      </h3>
-
-                      <p className="text-[15px] text-left text-main-text ">
-                        {truncateText(searchMovie.overview, 50)}
-                      </p>
-
-                      <StarRating rating={searchMovie.vote_average} />
-                    </div>
-                  </article>
-                </button>
-              ))
-            )}
-          </div>
+          {searchText && (
+            <SearchItemsList
+              parentRef={searchInputAndItems}
+              handleClearState={handleClearState}
+              isLoadingSearchMovies={isLoadingSearchMovies}
+              searchMovies={searchMovies}
+              seartchTextDebounce={seartchTextDebounce}
+              handleNavigateMovie={handleNavigateMovie}
+            />
+          )}
         </div>
 
         <div className="flex gap-[20px] items-center">
@@ -157,5 +138,82 @@ export const Header: React.FC = () => {
         </div>
       </div>
     </header>
+  );
+};
+
+const SearchItemsList: React.FC<SearchItemsListProps> = ({
+  parentRef,
+  handleClearState,
+  isLoadingSearchMovies,
+  searchMovies,
+  seartchTextDebounce,
+  handleNavigateMovie,
+}) => {
+  useClickAway(parentRef, () => {
+    handleClearState();
+  });
+
+  return (
+    <div
+      className={`
+    absolute
+    duration-300
+    delay-200
+    ease-in-out
+    h-[50vh]
+    custom-scrollbar
+    overflow-y-scroll
+    w-full
+    top-[calc(100%+10px)]
+    left-0
+    rounded-[10px]
+    shadow
+    bg-dropdown-bg
+    border
+    border-dropdown-border
+    opacity-0
+    translate-y-5
+    animate-fadeSlideIn`}
+    >
+      {isLoadingSearchMovies ? (
+        <svg className="h-[30px] w-[30px] object-cover m-[20px_auto_0] spin-endless stroke-main-text duration-500 ">
+          <use href={`${BASE_URL}/icons/sprite.svg#loader-icon`}></use>
+        </svg>
+      ) : searchMovies.length === 0 ? (
+        <p className="text-center text-[20px] mt-[20px]">
+          {seartchTextDebounce && 'Noting is found'}
+        </p>
+      ) : (
+        searchMovies.map((searchMovie, i) => (
+          <button
+            onClick={() => handleNavigateMovie(searchMovie.id)}
+            key={i}
+            className="block w-full px-4 py-2 duration-300 hover:bg-dropdown-list-bg cursor-pointer"
+          >
+            <article className="flex gap-[20px]">
+              <Image
+                width={70}
+                height={90}
+                alt={searchMovie.title}
+                src={getImagePath(searchMovie.poster_path)}
+                className="h-[90px] w-[70px] object-cover rounded-[8px]"
+              />
+
+              <div className="flex items-start flex-col gap-[3px] ">
+                <h3 className="text-left text-[18px] text-main-text ">
+                  {searchMovie.title}
+                </h3>
+
+                <p className="text-[15px] text-left text-main-text ">
+                  {truncateText(searchMovie.overview, 50)}
+                </p>
+
+                <StarRating rating={searchMovie.vote_average} />
+              </div>
+            </article>
+          </button>
+        ))
+      )}
+    </div>
   );
 };

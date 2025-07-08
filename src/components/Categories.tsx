@@ -40,6 +40,11 @@ const Categories: React.FC<{
       spaceBetween={10}
       slidesPerView={'auto'}
       freeMode={true}
+      onClick={() => {
+        document.body.dispatchEvent(
+          new MouseEvent('mousedown', { bubbles: true })
+        );
+      }}
     >
       {[INITIAL_CATEGORY, ...categoryData].map((category) => (
         <SwiperSlide

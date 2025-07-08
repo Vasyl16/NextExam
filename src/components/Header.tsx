@@ -24,13 +24,14 @@ type SearchItemsListProps = {
   seartchTextDebounce: string;
   handleNavigateMovie: (id: number) => void;
   parentRef: React.RefObject<HTMLDivElement | null>;
-  handleClearState: () => void;
+  handleClearDropdown: () => void;
 };
 
 export const Header: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
 
   const [searchText, setSearchText] = useState('');
+  const [dropdownVisible, setDropdownVisible] = useState(false);
 
   const router = useRouter();
 
@@ -45,8 +46,12 @@ export const Header: React.FC = () => {
       seartchTextDebounce.trim().length > 0
     );
 
-  const handleClearState = () => {
+  const handleClearSearchText = () => {
     setSearchText('');
+  };
+
+  const handleClearDropdown = () => {
+    setDropdownVisible(false);
   };
 
   const handleNavigateMovie = (id: number) => {
@@ -80,6 +85,7 @@ export const Header: React.FC = () => {
         >
           <div className="relative">
             <input
+              onFocus={() => setDropdownVisible(true)}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               className="text-[18px] bg-input-bg text-input-text w-full rounded-[10px] p-[10px_40px_10px_10px]  shadow-[-30px_-10px_70px_rgba(0,0,0,0.1)] focus:outline-input-outline"
@@ -88,7 +94,7 @@ export const Header: React.FC = () => {
 
             {searchText && (
               <button
-                onClick={handleClearState}
+                onClick={handleClearSearchText}
                 className="h-[30px] w-[30px] cursor-pointer absolute top-[50%] right-[10px] -translate-y-[50%]"
               >
                 <svg className=" hover:opacity-70  h-full w-full">
@@ -98,10 +104,10 @@ export const Header: React.FC = () => {
             )}
           </div>
 
-          {searchText && (
+          {dropdownVisible && searchText && (
             <SearchItemsList
               parentRef={searchInputAndItems}
-              handleClearState={handleClearState}
+              handleClearDropdown={handleClearDropdown}
               isLoadingSearchMovies={isLoadingSearchMovies}
               searchMovies={searchMovies}
               seartchTextDebounce={seartchTextDebounce}
@@ -156,14 +162,14 @@ export const Header: React.FC = () => {
 
 const SearchItemsList: React.FC<SearchItemsListProps> = ({
   parentRef,
-  handleClearState,
+  handleClearDropdown,
   isLoadingSearchMovies,
   searchMovies,
   seartchTextDebounce,
   handleNavigateMovie,
 }) => {
   useClickAway(parentRef, () => {
-    handleClearState();
+    handleClearDropdown();
   });
 
   return (

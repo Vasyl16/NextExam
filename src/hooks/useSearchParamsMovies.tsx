@@ -1,8 +1,5 @@
-import { useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { useRouter } from 'next/navigation';
-
-import type { Categorytype, SortOptionType } from '@/types/movieTypes';
+import { useState, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 import {
   CATEGORY_OPTIONS,
@@ -11,104 +8,72 @@ import {
   SORT_OPTIONS,
 } from '@/constants/movieConstants';
 
+import type { Categorytype, SortOptionType } from '@/types/movieTypes';
+
 export const useSearchParamsMovies = () => {
   const searchParams = useSearchParams();
-
   const router = useRouter();
 
-  const getSortType = () => {
-    const sortBy = searchParams.get('sortBy') || '';
+  const rawSort = searchParams.get('sortBy') || '';
+  const rawCategoryId = Number(searchParams.get('categoryId'));
+  const rawPage = Number(searchParams.get('page'));
 
-    if (!sortBy) {
-      return INITIAL_SORT_OPTION;
-    }
+  const initialSort =
+    SORT_OPTIONS.find((s) => s.sortBy === rawSort) || INITIAL_SORT_OPTION;
 
-    const sortOption = SORT_OPTIONS.find(
-      (sortOption) => sortOption.sortBy === sortBy
-    );
+  const initialCategory =
+    CATEGORY_OPTIONS.find((c) => c.id === rawCategoryId) || INITIAL_CATEGORY;
 
-    if (!sortOption) {
-      const params = new URLSearchParams(searchParams.toString());
-      params.delete('sortBy');
-      router.replace(`?${params.toString()}`, { scroll: false });
-      return INITIAL_SORT_OPTION;
-    }
+  const initialPage = rawPage > 0 && rawPage <= 500 ? rawPage : 1;
 
-    return sortOption;
-  };
-
-  const getCategory = () => {
-    const categoryId = searchParams.get('categoryId') || '';
-
-    if (!categoryId) {
-      return INITIAL_CATEGORY;
-    }
-
-    const selectedCategory = CATEGORY_OPTIONS.find(
-      (category) => category.id === Number(categoryId)
-    );
-
-    if (!selectedCategory) {
-      const params = new URLSearchParams(searchParams.toString());
-      params.delete('categoryId');
-      router.replace(`?${params.toString()}`, { scroll: false });
-      return INITIAL_CATEGORY;
-    }
-
-    return selectedCategory;
-  };
-
-  const getCurrentPage = () => {
-    const currentPage = Number(searchParams.get('page'));
-
-    if (!currentPage) {
-      return 1;
-    }
-
-    if (currentPage > 500) {
-      const params = new URLSearchParams(searchParams.toString());
-      params.delete('page');
-      router.replace(`?${params.toString()}`, { scroll: false });
-      return 1;
-    }
-
-    return currentPage;
-  };
-
-  const [selectedSort, setSelectedSort] = useState<SortOptionType>(getSortType);
-
+  const [selectedSort, setSelectedSort] = useState<SortOptionType>(initialSort);
   const [selectedCategory, setSelectedCategory] =
-    useState<Categorytype>(getCategory);
+    useState<Categorytype>(initialCategory);
+  const [currentPage, setCurrentPage] = useState<number>(initialPage);
 
-  const [currentPage, setCurrentPage] = useState(getCurrentPage);
+  // ✅ useEffect to clean invalid values from URL
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    let changed = false;
+
+    if (!SORT_OPTIONS.find((s) => s.sortBy === rawSort)) {
+      params.delete('sortBy');
+      changed = true;
+    }
+
+    if (!CATEGORY_OPTIONS.find((c) => c.id === rawCategoryId)) {
+      params.delete('categoryId');
+      changed = true;
+    }
+
+    if (!(rawPage > 0 && rawPage <= 500)) {
+      params.delete('page');
+      changed = true;
+    }
+
+    if (changed) {
+      router.replace(`?${params.toString()}`, { scroll: false });
+    }
+  }, [searchParams, router]);
 
   const handleSetSelectedSort = (newSelectedSort: SortOptionType) => {
     const params = new URLSearchParams(searchParams.toString());
-
     params.set('sortBy', newSelectedSort.sortBy);
-
     setSelectedSort(newSelectedSort);
-
     router.replace(`?${params.toString()}`, { scroll: false });
   };
 
   const handleSetCurrentPage = (newPage: number) => {
     const params = new URLSearchParams(searchParams.toString());
-
     params.set('page', String(newPage));
-
     setCurrentPage(newPage);
-
     router.replace(`?${params.toString()}`, { scroll: false });
   };
 
   const handleSetGategory = (category: Categorytype) => {
     const params = new URLSearchParams(searchParams.toString());
-
     params.set('categoryId', String(category.id));
-
     setSelectedCategory(category);
-
     router.replace(`?${params.toString()}`, { scroll: false });
   };
 
